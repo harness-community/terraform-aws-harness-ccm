@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "harness_ccm" {
-  bucket = "harness-ccm-${data.aws_caller_identity.current.account_id}-us-east-1"
+  bucket = "${var.prefix}harness-ccm"
 }
 
 resource "aws_s3_bucket_acl" "harness_ccm" {
@@ -107,7 +107,7 @@ resource "aws_s3_bucket_policy" "harness_ccm" {
 }
 
 resource "aws_cur_report_definition" "harness_ccm" {
-  report_name                = "harness-ccm"
+  report_name                = "${var.prefix}harness-ccm"
   time_unit                  = "HOURLY"
   format                     = "textORcsv"
   compression                = "GZIP"

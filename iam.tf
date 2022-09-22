@@ -20,7 +20,7 @@ data "aws_iam_policy_document" "harness_ce" {
 }
 
 resource "aws_iam_role" "harness_ce" {
-  name               = "HarnessCERole"
+  name               = "${var.prefix}HarnessCERole"
   assume_role_policy = data.aws_iam_policy_document.harness_ce.json
 }
 
@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "harness_getrole" {
 }
 
 resource "aws_iam_policy" "harness_getrole" {
-  name        = "HarnessGetRolePolicy"
+  name        = "${var.prefix}HarnessGetRolePolicy"
   description = "Policy granting Harness Simulate Principle Policy"
   policy      = data.aws_iam_policy_document.harness_getrole.json
 }
@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "harness_eventsmonitoring" {
 
 resource "aws_iam_policy" "harness_eventsmonitoring" {
   count       = var.enable_events ? 1 : 0
-  name        = "HarnessEventsMonitoringPolicy"
+  name        = "${var.prefix}HarnessEventsMonitoringPolicy"
   description = "Policy granting Harness Access to Enable Event Collection"
   policy      = data.aws_iam_policy_document.harness_eventsmonitoring.json
 }
@@ -140,7 +140,7 @@ data "aws_iam_policy_document" "harness_billingmonitoring" {
 
 resource "aws_iam_policy" "harness_billingmonitoring" {
   count       = var.enable_billing ? 1 : 0
-  name        = "HarnessBillingMonitoringPolicy"
+  name        = "${var.prefix}HarnessBillingMonitoringPolicy"
   description = "Policy granting Harness Access to Collect Billing Data"
   policy      = data.aws_iam_policy_document.harness_billingmonitoring.json
 }
@@ -174,7 +174,7 @@ data "aws_iam_policy_document" "harness_ce_lambda" {
 
 resource "aws_iam_role" "harness_ce_lambda" {
   count              = var.enable_optimization ? 1 : 0
-  name               = "HarnessCELambdaExecutionRole"
+  name               = "${var.prefix}HarnessCELambdaExecutionRole"
   path               = "/ce-optimization-service-role/"
   assume_role_policy = data.aws_iam_policy_document.harness_ce_lambda.json
 }
@@ -201,7 +201,7 @@ data "aws_iam_policy_document" "harness_optimsationlambda" {
 
 resource "aws_iam_policy" "harness_optimsationlambda" {
   count       = var.enable_optimization ? 1 : 0
-  name        = "HarnessOptimsationLambdaPolicy"
+  name        = "${var.prefix}HarnessOptimsationLambdaPolicy"
   description = "Policy granting Harness Access to Enable Cost Optimisation"
   policy      = data.aws_iam_policy_document.harness_optimsationlambda.json
 }
@@ -277,7 +277,7 @@ data "aws_iam_policy_document" "harness_optimsation" {
 
 resource "aws_iam_policy" "harness_optimsation" {
   count       = var.enable_optimization ? 1 : 0
-  name        = "HarnessOptimisationPolicy"
+  name        = "${var.prefix}HarnessOptimisationPolicy"
   description = "Policy granting Harness Access to Enable Cost Optimisation"
   policy      = data.aws_iam_policy_document.harness_optimsation.json
 }

@@ -2,6 +2,17 @@
 
 Terraform to configure the CCM module for AWS on Harness.
 
+Can be used as an example or a module:
+
+```terraform
+module "ccm" {
+  source              = "github.com/rssnyder/terraform-aws-harness-ccm.git"
+  external_id         = "harness:891928451355:XXXXXXXXXXXXXXX"
+  enable_events       = true
+  enable_optimization = true
+}
+```
+
 ## how-to
 
 Log in to [harness](app.harness.io) and navigate to the `Cloud Costs` service. Select `AWS`.
@@ -12,7 +23,7 @@ Name the connector, and enter your AWS account ID.
 
 ![ccm-aws](./images/ccm_tf_1.png)
 
-Enter the name of the usage report and s3 bucket. The defaults in this terraform example are `harness-ccm` and `harness-ccm-<account id>-us-east-1`.
+Enter the name of the usage report and s3 bucket. The defaults in this terraform example are `harness-ccm` and `harness-ccm`.
 
 ![ccm-aws](./images/ccm_tf_2.png)
 
@@ -86,6 +97,7 @@ To enable features in the future, you can simply change the input varibles and r
 | enable_billing | Enable AWS Cost Visibility | `bool` | true | no |
 | enable_events | Enable AWS Resource Management | `bool` | false | no |
 | enable_optimization | Enable AWS Optimization by Auto-Stopping | `bool` | false | no |
+| prefix | A string to add to all resources to add uniqueness | `string` | | no |
 
 ## Outputs
 
