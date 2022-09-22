@@ -20,3 +20,9 @@ variable "enable_optimization" {
   default     = false
   description = "Enable AWS Optimization by Auto-Stopping"
 }
+
+variable "prefix" {
+  type        = string
+  description = "A string to add to all resources to add uniqueness"
+  default     = ""
+}
