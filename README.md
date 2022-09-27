@@ -23,7 +23,7 @@ Name the connector, and enter your AWS account ID.
 
 ![ccm-aws](./images/ccm_tf_1.png)
 
-Enter the name of the usage report and s3 bucket. The defaults in this terraform example are `harness-ccm` and `harness-ccm`.
+Enter the name of the usage report and s3 bucket. The defaults in this terraform example are `harness-ccm` and `harness-ccm`. If you are using the prefix variable, add the prefix in front of the default values. Do not create these resources, they will be created by Terraform.
 
 ![ccm-aws](./images/ccm_tf_2.png)
 
@@ -35,7 +35,7 @@ Copy the `External ID` from the next page, you will need it as an input to the t
 
 ![ccm-aws](./images/ccm_tf_4.png)
 
-Copy the code locally, [install terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli), set up your AWS credentils, and optionally enable or disable any of the CCM features by editing the `variables.tf` file.
+Copy the code locally, [install terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli), set up your AWS credentils, and optionally enable or disable any of the CCM features by editing the `variables.tf` file. If you are using a prefix, make sure the value matches the prefix you specified previously.
 
 ![ccm-aws](./images/ccm_tf_vars.png)
 
