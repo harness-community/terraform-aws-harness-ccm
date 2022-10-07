@@ -106,7 +106,15 @@ resource "aws_s3_bucket_policy" "harness_ccm" {
   policy = data.aws_iam_policy_document.harness_ccm.json
 }
 
+resource "time_sleep" "wait_30_seconds" {
+  depends_on = [aws_s3_bucket_policy.harness_ccm]
+
+  create_duration = "30s"
+}
+
 resource "aws_cur_report_definition" "harness_ccm" {
+  depends_on = [time_sleep.wait_30_seconds]
+
   report_name                = "${var.prefix}harness-ccm"
   time_unit                  = "HOURLY"
   format                     = "textORcsv"
