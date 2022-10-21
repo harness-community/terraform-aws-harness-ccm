@@ -12,9 +12,7 @@ data "aws_iam_policy_document" "harness_ce" {
     condition {
       test     = "StringEquals"
       variable = "sts:ExternalId"
-      values = [
-        var.external_id
-      ]
+      values   = concat([var.external_id], var.additional_external_ids)
     }
   }
 }
