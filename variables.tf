@@ -26,3 +26,9 @@ variable "prefix" {
   description = "A string to add to all resources to add uniqueness"
   default     = ""
 }
+
+variable "additional_external_ids" {
+  type        = list(string)
+  description = "Additional external ids to allow"
+  default     = []
+}
