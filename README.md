@@ -98,6 +98,7 @@ To enable features in the future, you can simply change the input varibles and r
 | enable_events | Enable AWS Resource Management | `bool` | false | no |
 | enable_optimization | Enable AWS Optimization by Auto-Stopping | `bool` | false | no |
 | prefix | A string to add to all resources to add uniqueness | `string` | | no |
+| additional_external_ids | Additional external ids to allow | `list(string)` | | no |
 
 ## Outputs
 
