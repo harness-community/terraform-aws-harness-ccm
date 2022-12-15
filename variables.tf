@@ -21,6 +21,18 @@ variable "enable_optimization" {
   description = "Enable AWS Optimization by Auto-Stopping"
 }
 
+variable "enable_governance" {
+  type        = bool
+  default     = false
+  description = "Enable AWS Asset Governance"
+}
+
+variable "governance_policy_arn" {
+  type        = string
+  default     = ""
+  description = "Policy arn to give role access to enforce governance"
+}
+
 variable "prefix" {
   type        = string
   description = "A string to add to all resources to add uniqueness"

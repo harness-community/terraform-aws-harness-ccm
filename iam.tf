@@ -285,3 +285,54 @@ resource "aws_iam_role_policy_attachment" "harness_ce_optimsation" {
   role       = aws_iam_role.harness_ce.name
   policy_arn = aws_iam_policy.harness_optimsation[0].arn
 }
+
+data "aws_iam_policy_document" "harness_governance" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ec2:Describe*",
+      "ec2:Get*",
+      "ec2:ListImagesInRecycleBin",
+      "ec2:ListSnapshotsInRecycleBin",
+      "elasticbeanstalk:Check*",
+      "elasticbeanstalk:Describe*",
+      "elasticbeanstalk:List*",
+      "elasticbeanstalk:Request*",
+      "elasticbeanstalk:Retrieve*",
+      "elasticbeanstalk:Validate*",
+      "elasticloadbalancing:Describe*",
+      "rds:Describe*",
+      "rds:Download*",
+      "rds:List*",
+      "autoscaling-plans:Describe*",
+      "autoscaling-plans:GetScalingPlanResourceForecastData",
+      "autoscaling:Describe*",
+      "autoscaling:GetPredictiveScalingForecast",
+      "s3:DescribeJob'",
+      "s3:Get*",
+      "s3:List*"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "harness_governance" {
+  count       = var.enable_governance ? 1 : 0
+  name        = "${var.prefix}HarnessGovernancePolicy"
+  description = "Policy granting Harness Access to Enable Asset Governance"
+  policy      = data.aws_iam_policy_document.harness_governance.json
+}
+
+resource "aws_iam_role_policy_attachment" "harness_ce_governance" {
+  count      = var.enable_governance ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.harness_governance[0].arn
+}
+
+resource "aws_iam_role_policy_attachment" "harness_ce_governance_enforce" {
+  count      = var.governance_policy_arn != "" ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = var.governance_policy_arn
+}
