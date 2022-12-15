@@ -80,7 +80,8 @@ To enable features in the future, you can simply change the input varibles and r
 | aws_iam_policy.harness_optimsation | Resource |
 | aws_iam_role_policy_attachment.harness_ce_optimsation | Resource |
 | aws_iam_policy.harness_governance | Resource |
-| aws_iam_role_policy_attachment.harness_governance | Resource |
+| aws_iam_role_policy_attachment.harness_ce_governance | Resource |
+| aws_iam_role_policy_attachment.harness_ce_governance_enforce | Resource |
 | aws_caller_identity.current | Data Source |
 | aws_iam_policy_document.harness_ccm | Data Source |
 | aws_iam_policy_document.harness_ce | Data Source |
@@ -101,6 +102,7 @@ To enable features in the future, you can simply change the input varibles and r
 | enable_events | Enable AWS Resource Management | `bool` | false | no |
 | enable_optimization | Enable AWS Optimization by Auto-Stopping | `bool` | false | no |
 | enable_governance | Enable AWS Asset Governance | `bool` | false | no |
+| governance_policy_arn | Policy arn to give role access to enforce governance | `string` | | no |
 | prefix | A string to add to all resources to add uniqueness | `string` | | no |
 | additional_external_ids | Additional external ids to allow | `list(string)` | | no |
 

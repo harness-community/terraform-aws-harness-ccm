@@ -330,3 +330,9 @@ resource "aws_iam_role_policy_attachment" "harness_ce_governance" {
   role       = aws_iam_role.harness_ce.name
   policy_arn = aws_iam_policy.harness_governance[0].arn
 }
+
+resource "aws_iam_role_policy_attachment" "harness_ce_governance_enforce" {
+  count      = var.governance_policy_arn != "" ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = var.governance_policy_arn
+}
