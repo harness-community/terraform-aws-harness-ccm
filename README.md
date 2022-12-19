@@ -6,7 +6,7 @@ Can be used as an example or a module:
 
 ```terraform
 module "ccm" {
-  source                = "github.com/rssnyder/terraform-aws-harness-ccm.git"
+  source                = "github.com/harness-community/terraform-aws-harness-ccm.git"
   external_id           = "harness:891928451355:XXXXXXXXXXXXXXX"
   enable_events         = true
   enable_optimization   = true
