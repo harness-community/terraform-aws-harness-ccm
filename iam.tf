@@ -336,3 +336,28 @@ resource "aws_iam_role_policy_attachment" "harness_ce_governance_enforce" {
   role       = aws_iam_role.harness_ce.name
   policy_arn = var.governance_policy_arn
 }
+
+data "aws_iam_policy_document" "harness_secret_access" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:GetSecretValue"
+    ]
+
+    resources = var.secrets
+  }
+}
+
+resource "aws_iam_policy" "harness_secret_access" {
+  count       = length(var.secrets) > 0 ? 1 : 0
+  name        = "${var.prefix}HarnessSecretAccessPolicy"
+  description = "Policy granting Harness Access to Secrets"
+  policy      = data.aws_iam_policy_document.harness_secret_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "harness_secret_access" {
+  count      = length(var.secrets) > 0 ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.harness_secret_access[0].arn
+}

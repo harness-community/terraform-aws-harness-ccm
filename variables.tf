@@ -44,3 +44,9 @@ variable "additional_external_ids" {
   description = "Additional external ids to allow"
   default     = []
 }
+
+variable "secrets" {
+  type        = list(string)
+  description = "List of secrets that harness should have access to"
+  default     = []
+}
