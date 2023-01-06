@@ -6,12 +6,17 @@ Can be used as an example or a module:
 
 ```terraform
 module "ccm" {
-  source                = "github.com/harness-community/terraform-aws-harness-ccm.git"
+  source                = "harness-community/harness-ccm/aws"
+  version               = "0.0.2"
   external_id           = "harness:891928451355:XXXXXXXXXXXXXXX"
   enable_events         = true
   enable_optimization   = true
   enable_governance     = true
   governance_policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+  secrets = [
+    "arn:aws:secretsmanager:us-west-2:XXXXXXXXXXXX:secret:ca-key.pem-HYlaV4",
+    "arn:aws:secretsmanager:us-west-2:XXXXXXXXXXXX:secret:ca-cert.pem-kq8HQl"
+  ]
 }
 ```
 
