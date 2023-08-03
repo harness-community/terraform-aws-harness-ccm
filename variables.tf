@@ -1,3 +1,8 @@
+variable "s3_bucket_arn" {
+  type        = string
+  description = "S3 Arn for the bucket that holds your CUR"
+}
+
 variable "external_id" {
   type        = string
   description = "External ID given in the harness UI: harness:891928451355:<guid>"
@@ -5,7 +10,7 @@ variable "external_id" {
 
 variable "enable_billing" {
   type        = bool
-  default     = true
+  default     = false
   description = "Enable AWS Cost Visibility"
 }
 
@@ -27,10 +32,22 @@ variable "enable_governance" {
   description = "Enable AWS Asset Governance"
 }
 
-variable "governance_policy_arn" {
-  type        = string
-  default     = ""
-  description = "Policy arn to give role access to enforce governance"
+variable "enable_commitment_read" {
+  type        = bool
+  default     = false
+  description = "Enable AWS Commitment Orchestrator Read"
+}
+
+variable "enable_commitment_write" {
+  type        = bool
+  default     = false
+  description = "Enable AWS Commitment Orchestrator Write"
+}
+
+variable "governance_policy_arns" {
+  type        = list(string)
+  default     = []
+  description = "Policy arns to give role access to enforce governance"
 }
 
 variable "prefix" {

@@ -1,127 +1,428 @@
-data "aws_caller_identity" "current" {}
+data "aws_iam_policy_document" "harness_ce" {
+  statement {
+    effect = "Allow"
 
-resource "aws_s3_bucket" "harness_ccm" {
-  bucket = "${var.prefix}harness-ccm"
-}
+    actions = ["sts:AssumeRole"]
 
-resource "aws_s3_bucket_acl" "harness_ccm" {
-  bucket = aws_s3_bucket.harness_ccm.id
-  acl    = "private"
-}
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::891928451355:root"]
+    }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "harness_ccm" {
-  bucket = aws_s3_bucket.harness_ccm.bucket
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "aws:kms"
+    condition {
+      test     = "StringEquals"
+      variable = "sts:ExternalId"
+      values   = concat([var.external_id], var.additional_external_ids)
     }
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "harness_ccm" {
-  bucket = aws_s3_bucket.harness_ccm.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+resource "aws_iam_role" "harness_ce" {
+  name               = "${var.prefix}HarnessCERole"
+  assume_role_policy = data.aws_iam_policy_document.harness_ce.json
 }
 
-data "aws_iam_policy_document" "harness_ccm" {
+data "aws_iam_policy_document" "harness_getrole" {
   statement {
-    sid = "1"
+    effect = "Allow"
+
+    actions = ["iam:SimulatePrincipalPolicy"]
+
+    resources = [
+      aws_iam_role.harness_ce.arn
+    ]
+  }
+}
+
+resource "aws_iam_policy" "harness_getrole" {
+  name        = "${var.prefix}HarnessGetRolePolicy"
+  description = "Policy granting Harness Simulate Principle Policy"
+  policy      = data.aws_iam_policy_document.harness_getrole.json
+}
+
+resource "aws_iam_role_policy_attachment" "harness_ce_getrole" {
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.harness_getrole.arn
+}
+
+data "aws_iam_policy_document" "harness_eventsmonitoring" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ecs:ListClusters*",
+      "ecs:DescribeClusters",
+      "ecs:ListServices",
+      "ecs:DescribeServices",
+      "ecs:DescribeContainerInstances",
+      "ecs:ListTasks",
+      "ecs:ListContainerInstances",
+      "ecs:DescribeTasks",
+      "ec2:DescribeInstances*",
+      "ec2:DescribeRegions",
+      "cloudwatch:GetMetricData",
+      "ec2:DescribeVolumes",
+      "ec2:DescribeSnapshots",
+      "rds:DescribeDBSnapshots",
+      "rds:DescribeDBInstances",
+      "rds:DescribeDBClusters",
+      "rds:DescribeDBSnapshotAttributes"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "harness_eventsmonitoring" {
+  count       = var.enable_events ? 1 : 0
+  name        = "${var.prefix}HarnessEventsMonitoringPolicy"
+  description = "Policy granting Harness Access to Enable Event Collection"
+  policy      = data.aws_iam_policy_document.harness_eventsmonitoring.json
+}
+
+resource "aws_iam_role_policy_attachment" "harness_ce_eventsmonitoring" {
+  count      = var.enable_events ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.harness_eventsmonitoring[0].arn
+}
+
+data "aws_iam_policy_document" "harness_billingmonitoring" {
+  statement {
+    sid = "readBillingBucket"
 
     effect = "Allow"
 
-    principals {
-      type        = "Service"
-      identifiers = ["billingreports.amazonaws.com"]
-    }
-
     actions = [
-      "s3:GetBucketAcl",
-      "s3:GetBucketPolicy"
+      "s3:GetBucketLocation",
+      "s3:ListBucket",
+      "s3:GetObject"
     ]
 
     resources = [
-      aws_s3_bucket.harness_ccm.arn,
+      var.s3_bucket_arn,
+      "${var.s3_bucket_arn}/*"
     ]
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values = [
-        "arn:aws:cur:us-east-1:759984737373:definition/*"
-      ]
-    }
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceAccount"
-      values = [
-        "759984737373"
-      ]
-    }
   }
 
   statement {
-    sid = "2"
+    sid = "writeHarnessBucket"
 
     effect = "Allow"
 
-    principals {
-      type        = "Service"
-      identifiers = ["billingreports.amazonaws.com"]
-    }
-
     actions = [
-      "s3:PutObject"
+      "s3:ListBucket",
+      "s3:PutObject",
+      "s3:PutObjectAcl"
     ]
 
     resources = [
-      "${aws_s3_bucket.harness_ccm.arn}/*"
+      "arn:aws:s3:::ce-customer-billing-data-prod*",
+      "arn:aws:s3:::ce-customer-billing-data-prod*/*"
+    ]
+  }
+
+  statement {
+    sid = "readOrg"
+
+    effect = "Allow"
+
+    actions = [
+      "cur:DescribeReportDefinitions",
+      "organizations:Describe*",
+      "organizations:List*"
     ]
 
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceArn"
-      values = [
-        "arn:aws:cur:us-east-1:759984737373:definition/*"
-      ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "harness_billingmonitoring" {
+  count       = var.enable_billing ? 1 : 0
+  name        = "${var.prefix}HarnessBillingMonitoringPolicy"
+  description = "Policy granting Harness Access to Collect Billing Data"
+  policy      = data.aws_iam_policy_document.harness_billingmonitoring.json
+}
+
+resource "aws_iam_role_policy_attachment" "harness_ce_billingmonitoring" {
+  count      = var.enable_billing ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.harness_billingmonitoring[0].arn
+}
+
+data "aws_iam_policy_document" "harness_ce_lambda" {
+  statement {
+    effect = "Allow"
+
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
     }
 
     condition {
       test     = "StringEquals"
-      variable = "aws:SourceAccount"
+      variable = "sts:ExternalId"
       values = [
-        "759984737373"
+        var.external_id
       ]
     }
   }
 }
 
-resource "aws_s3_bucket_policy" "harness_ccm" {
-  bucket = aws_s3_bucket.harness_ccm.id
-  policy = data.aws_iam_policy_document.harness_ccm.json
+resource "aws_iam_role" "harness_ce_lambda" {
+  count              = var.enable_optimization ? 1 : 0
+  name               = "${var.prefix}HarnessCELambdaExecutionRole"
+  path               = "/ce-optimization-service-role/"
+  assume_role_policy = data.aws_iam_policy_document.harness_ce_lambda.json
 }
 
-resource "time_sleep" "wait_30_seconds" {
-  depends_on = [aws_s3_bucket_policy.harness_ccm]
+data "aws_iam_policy_document" "harness_optimsationlambda" {
+  statement {
+    effect = "Allow"
 
-  create_duration = "30s"
+    actions = [
+      "ec2:CreateNetworkInterface",
+      "ec2:CreateNetworkInsightsPath",
+      "ec2:CreateNetworkInterfacePermission",
+      "ec2:CreateNetworkAcl",
+      "ec2:*",
+      "ec2:CreateNetworkAclEntry",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+
+    resources = ["*"]
+  }
 }
 
-resource "aws_cur_report_definition" "harness_ccm" {
-  depends_on = [time_sleep.wait_30_seconds]
+resource "aws_iam_policy" "harness_optimsationlambda" {
+  count       = var.enable_optimization ? 1 : 0
+  name        = "${var.prefix}HarnessOptimsationLambdaPolicy"
+  description = "Policy granting Harness Access to Enable Cost Optimisation"
+  policy      = data.aws_iam_policy_document.harness_optimsationlambda.json
+}
 
-  report_name                = "${var.prefix}harness-ccm"
-  time_unit                  = "HOURLY"
-  format                     = "textORcsv"
-  compression                = "GZIP"
-  additional_schema_elements = ["RESOURCES"]
-  refresh_closed_reports     = true
-  report_versioning          = "OVERWRITE_REPORT"
-  s3_bucket                  = aws_s3_bucket.harness_ccm.bucket
-  s3_region                  = "us-east-1"
+resource "aws_iam_role_policy_attachment" "harness_ce_lambda_optimsationlambda" {
+  count      = var.enable_optimization ? 1 : 0
+  role       = aws_iam_role.harness_ce_lambda[0].name
+  policy_arn = aws_iam_policy.harness_optimsationlambda[0].arn
+}
+
+data "aws_iam_policy_document" "harness_optimsation" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "elasticloadbalancing:*",
+      "ec2:StopInstances",
+      "autoscaling:*",
+      "ec2:Describe*",
+      "iam:CreateServiceLinkedRole",
+      "iam:ListInstanceProfiles",
+      "iam:ListInstanceProfilesForRole",
+      "iam:AddRoleToInstanceProfile",
+      "iam:PassRole",
+      "ec2:StartInstances",
+      "ec2:*",
+      "iam:GetUser",
+      "ec2:ModifyInstanceAttribute",
+      "iam:ListRoles",
+      "acm:ListCertificates",
+      "lambda:*",
+      "cloudwatch:ListMetrics",
+      "cloudwatch:GetMetricData",
+      "route53:GetHostedZone",
+      "route53:ListHostedZones",
+      "route53:ListHostedZonesByName",
+      "route53:ChangeResourceRecordSets",
+      "route53:ListResourceRecordSets",
+      "route53:GetHealthCheck",
+      "route53:GetHealthCheckStatus",
+      "cloudwatch:GetMetricStatistics",
+      "ecs:ListClusters",
+      "ecs:ListContainerInstances",
+      "ecs:ListServices",
+      "ecs:ListTaskDefinitions",
+      "ecs:ListTasks",
+      "ecs:DescribeCapacityProviders",
+      "ecs:DescribeClusters",
+      "ecs:DescribeContainerInstances",
+      "ecs:DescribeServices",
+      "ecs:DescribeTaskDefinition",
+      "ecs:DescribeTasks",
+      "ecs:DescribeTaskSets",
+      "ecs:RunTask",
+      "ecs:StopTask",
+      "ecs:StartTask",
+      "ecs:UpdateService",
+      "rds:DescribeDBClusters",
+      "rds:DescribeDBInstances",
+      "rds:ListTagsForResource",
+      "rds:AddTagsToResource",
+      "rds:RemoveTagsFromResource",
+      "rds:ModifyDBInstance",
+      "rds:StartDBCluster",
+      "rds:StartDBInstance",
+      "rds:StopDBCluster",
+      "rds:StopDBInstance"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "harness_optimsation" {
+  count       = var.enable_optimization ? 1 : 0
+  name        = "${var.prefix}HarnessOptimisationPolicy"
+  description = "Policy granting Harness Access to Enable Cost Optimisation"
+  policy      = data.aws_iam_policy_document.harness_optimsation.json
+}
+
+resource "aws_iam_role_policy_attachment" "harness_ce_optimsation" {
+  count      = var.enable_optimization ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.harness_optimsation[0].arn
+}
+
+data "aws_iam_policy_document" "harness_governance" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ec2:Describe*",
+      "ec2:Get*",
+      "ec2:ListImagesInRecycleBin",
+      "ec2:ListSnapshotsInRecycleBin",
+      "elasticbeanstalk:Check*",
+      "elasticbeanstalk:Describe*",
+      "elasticbeanstalk:List*",
+      "elasticbeanstalk:Request*",
+      "elasticbeanstalk:Retrieve*",
+      "elasticbeanstalk:Validate*",
+      "elasticloadbalancing:Describe*",
+      "rds:Describe*",
+      "rds:Download*",
+      "rds:List*",
+      "autoscaling-plans:Describe*",
+      "autoscaling-plans:GetScalingPlanResourceForecastData",
+      "autoscaling:Describe*",
+      "autoscaling:GetPredictiveScalingForecast",
+      "s3:DescribeJob'",
+      "s3:Get*",
+      "s3:List*"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "harness_governance" {
+  count       = var.enable_governance ? 1 : 0
+  name        = "${var.prefix}HarnessGovernancePolicy"
+  description = "Policy granting Harness Access to Enable Asset Governance"
+  policy      = data.aws_iam_policy_document.harness_governance.json
+}
+
+resource "aws_iam_role_policy_attachment" "harness_ce_governance" {
+  count      = var.enable_governance ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.harness_governance[0].arn
+}
+
+resource "aws_iam_role_policy_attachment" "harness_ce_governance_enforce" {
+  for_each   = toset(var.governance_policy_arns)
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = each.key
+}
+
+data "aws_iam_policy_document" "harness_commitment_read" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ec2:DescribeReservedInstancesOfferings",
+      "ce:GetSavingsPlansUtilization",
+      "ce:GetReservationUtilization",
+      "ec2:DescribeInstanceTypeOfferings",
+      "ce:GetDimensionValues",
+      "ce:GetSavingsPlansUtilizationDetails",
+      "ec2:DescribeReservedInstances",
+      "ce:GetReservationCoverage",
+      "ce:GetSavingsPlansCoverage",
+      "savingsplans:DescribeSavingsPlans",
+      "organizations:DescribeOrganization"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "harness_commitment_read" {
+  count       = var.enable_commitment_read ? 1 : 0
+  name        = "${var.prefix}HarnessCommitmentReadPolicy"
+  description = "Policy granting Harness Access to Enable Commitment Orchestration Read"
+  policy      = data.aws_iam_policy_document.harness_commitment_read.json
+}
+
+resource "aws_iam_role_policy_attachment" "harness_ce_commitment_read" {
+  count      = var.enable_commitment_read ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.harness_commitment_read[0].arn
+}
+
+data "aws_iam_policy_document" "harness_commitment_write" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "ec2:PurchaseReservedInstancesOffering",
+      "ec2:GetReservedInstancesExchangeQuote",
+      "ec2:DescribeInstanceTypeOfferings",
+      "ec2:AcceptReservedInstancesExchangeQuote",
+      "ec2:DescribeReservedInstancesModifications",
+      "ec2:ModifyReservedInstances"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "harness_commitment_write" {
+  count       = var.enable_commitment_write ? 1 : 0
+  name        = "${var.prefix}HarnessCommitmentWritePolicy"
+  description = "Policy granting Harness Access to Enable Commitment Orchestration Write"
+  policy      = data.aws_iam_policy_document.harness_commitment_write.json
+}
+
+resource "aws_iam_role_policy_attachment" "harness_ce_commitment_write" {
+  count      = var.enable_commitment_write ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.harness_commitment_write[0].arn
+}
+
+data "aws_iam_policy_document" "harness_secret_access" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "secretsmanager:GetSecretValue"
+    ]
+
+    resources = var.secrets
+  }
+}
+
+resource "aws_iam_policy" "harness_secret_access" {
+  count       = length(var.secrets) > 0 ? 1 : 0
+  name        = "${var.prefix}HarnessSecretAccessPolicy"
+  description = "Policy granting Harness Access to Secrets"
+  policy      = data.aws_iam_policy_document.harness_secret_access.json
+}
+
+resource "aws_iam_role_policy_attachment" "harness_secret_access" {
+  count      = length(var.secrets) > 0 ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.harness_secret_access[0].arn
 }
