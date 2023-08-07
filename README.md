@@ -23,6 +23,25 @@ module "ccm" {
     "arn:aws:secretsmanager:us-west-2:XXXXXXXXXXXX:secret:ca-cert.pem-kq8HQl"
   ]
 }
+
+# create harness aws ccm connector
+resource "harness_platform_connector_awscc" "aws-master" {
+  identifier = "awsmaster"
+  name       = "aws-master"
+
+  account_id  = "759984737373"
+  report_name = "harness-ccm"
+  s3_bucket   = "harness-ccm"
+  features_enabled = [
+    "OPTIMIZATION",
+    "VISIBILITY",
+    "BILLING",
+  ]
+  cross_account_access {
+    role_arn    = module.ccm.cross_account_role
+    external_id = module.ccm.external_id
+  }
+}
 ```
 
 ## how-to
