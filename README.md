@@ -4,6 +4,12 @@ Terraform to configure the CCM module for AWS on Harness.
 
 Can be used as an example or a module.
 
+## Authentication
+
+This module creates AWS resources. To set up authentication to your AWS account please see the [AWS provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs).
+
+The examples below also include optional Harness resources `harness_platform_connector_awscc` that show how to create the nessesary AWS CCM connectors within Harness. If you wish to use those examples please see the [Harness provider documentation](https://registry.terraform.io/providers/harness/harness/latest/docs) on setting up authentication to Harness for Terraform.
+
 ## Usage
 
 When creating a role in your master account for granting Harness access to your CUR, be sure and set `s3_bucket_arn` to the bucket that holds your CUR and `enable_billing` to true:
@@ -18,7 +24,11 @@ module "ccm-billing" {
   s3_bucket_arn           = "arn:aws:s3:::my-cur-bucket"
   enable_billing          = true
 }
+```
 
+You can then create the AWS CCM connector in your Harness account by referecing outputs from the module.
+
+```terraform
 # create harness aws ccm connector
 resource "harness_platform_connector_awscc" "aws-master" {
   identifier = "awsmaster"
@@ -54,7 +64,11 @@ module "ccm-member" {
     "arn:aws:iam::aws:policy/AdministratorAccess"
   ]
 }
+```
 
+You can then create the AWS CCM connector in your Harness account by referecing outputs from the module.
+
+```terraform
 # create harness aws ccm connector
 resource "harness_platform_connector_awscc" "aws-member" {
   identifier = "awsmember"
