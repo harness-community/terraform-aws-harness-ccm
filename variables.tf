@@ -1,6 +1,7 @@
 variable "s3_bucket_arn" {
   type        = string
   description = "S3 Arn for the bucket that holds your CUR"
+  default     = ""
 }
 
 variable "external_id" {

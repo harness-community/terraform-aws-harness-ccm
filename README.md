@@ -2,26 +2,21 @@
 
 Terraform to configure the CCM module for AWS on Harness.
 
-Can be used as an example or a module:
+Can be used as an example or a module.
+
+## Usage
+
+When creating a role in your master account for granting Harness access to your CUR, be sure and set `s3_bucket_arn` to the bucket that holds your CUR and `enable_billing` to true:
 
 ```terraform
-module "ccm" {
+# create aws role
+module "ccm-billing" {
   source                = "harness-community/harness-ccm/aws"
   version               = "0.1.0"
-  external_id           = "harness:891928451355:XXXXXXXXXXXXXXX"
+
+  external_id             = "harness:891928451355:randomstringhere"
+  s3_bucket_arn           = "arn:aws:s3:::my-cur-bucket"
   enable_billing          = true
-  enable_events           = true
-  enable_optimization     = true
-  enable_governance       = true
-  enable_commitment_read  = true
-  enable_commitment_write = true
-  governance_policy_arn = [
-    "arn:aws:iam::aws:policy/AdministratorAccess"
-  ]
-  secrets = [
-    "arn:aws:secretsmanager:us-west-2:XXXXXXXXXXXX:secret:ca-key.pem-HYlaV4",
-    "arn:aws:secretsmanager:us-west-2:XXXXXXXXXXXX:secret:ca-cert.pem-kq8HQl"
-  ]
 }
 
 # create harness aws ccm connector
@@ -31,15 +26,48 @@ resource "harness_platform_connector_awscc" "aws-master" {
 
   account_id  = "759984737373"
   report_name = "harness-ccm"
-  s3_bucket   = "harness-ccm"
+  s3_bucket   = "my-cur-bucket"
+
+  features_enabled = [
+    "BILLING",
+  ]
+
+  cross_account_access {
+    role_arn    = module.ccm-billing.cross_account_role
+    external_id = module.ccm-billing.external_id
+  }
+}
+```
+
+When creating roles in member accounts, for non billing access, just set the specific features you want to enable:
+
+```terraform
+module "ccm-member" {
+  source                = "harness-community/harness-ccm/aws"
+  version               = "0.1.0"
+  
+  external_id             = "harness:891928451355:XXXXXXXXXXXXXXX"
+  enable_events           = true
+  enable_optimization     = true
+  enable_governance       = true
+  governance_policy_arn = [
+    "arn:aws:iam::aws:policy/AdministratorAccess"
+  ]
+}
+
+# create harness aws ccm connector
+resource "harness_platform_connector_awscc" "aws-member" {
+  identifier = "awsmember"
+  name       = "aws-member"
+
+  account_id  = "759984737373"
   features_enabled = [
     "OPTIMIZATION",
     "VISIBILITY",
-    "BILLING",
   ]
   cross_account_access {
-    role_arn    = module.ccm.cross_account_role
-    external_id = module.ccm.external_id
+    role_arn    = module.ccm-member.cross_account_role
+    external_id = module.ccm-member.external_id
   }
 }
 ```
@@ -155,7 +183,7 @@ No modules.
 | <a name="input_external_id"></a> [external\_id](#input\_external\_id) | External ID given in the harness UI: harness:891928451355:<guid> | `string` | n/a | yes |
 | <a name="input_governance_policy_arns"></a> [governance\_policy\_arns](#input\_governance\_policy\_arns) | Policy arns to give role access to enforce governance | `list(string)` | `[]` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | A string to add to all resources to add uniqueness | `string` | `""` | no |
-| <a name="input_s3_bucket_arn"></a> [s3\_bucket\_arn](#input\_s3\_bucket\_arn) | S3 Arn for the bucket that holds your CUR | `string` | n/a | yes |
+| <a name="input_s3_bucket_arn"></a> [s3\_bucket\_arn](#input\_s3\_bucket\_arn) | S3 Arn for the bucket that holds your CUR | `string` | `""` | no |
 | <a name="input_secrets"></a> [secrets](#input\_secrets) | List of secrets that harness should have access to | `list(string)` | `[]` | no |
 
 ## Outputs
