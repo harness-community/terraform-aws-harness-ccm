@@ -159,14 +159,6 @@ data "aws_iam_policy_document" "harness_ce_lambda" {
       type        = "Service"
       identifiers = ["lambda.amazonaws.com"]
     }
-
-    condition {
-      test     = "StringEquals"
-      variable = "sts:ExternalId"
-      values = [
-        var.external_id
-      ]
-    }
   }
 }
 
