@@ -66,7 +66,8 @@ data "aws_iam_policy_document" "harness_eventsmonitoring" {
       "rds:DescribeDBSnapshots",
       "rds:DescribeDBInstances",
       "rds:DescribeDBClusters",
-      "rds:DescribeDBSnapshotAttributes"
+      "rds:DescribeDBSnapshotAttributes",
+      "ce:GetRightsizingRecommendation"
     ]
 
     resources = ["*"]
