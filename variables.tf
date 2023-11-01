@@ -48,7 +48,7 @@ variable "enable_commitment_write" {
 variable "governance_policy_arns" {
   type        = list(string)
   default     = []
-  description = "Policy arns to give role access to enforce governance"
+  description = "Policy arns to give the role additonal access to enforce custom governance rules"
 }
 
 variable "prefix" {
