@@ -1,8 +1,8 @@
 # Terraform AWS Harness CCM
 
-Terraform to configure the CCM module for AWS on Harness.
+Terraform to configure your AWS account for use with Harness CCM.
 
-Can be used as an example or a module.
+Can be used as a module or a starting point for your own automation.
 
 ## Authentication
 
