@@ -12,21 +12,24 @@ The examples below also include optional Harness resources `harness_platform_con
 
 ## Usage
 
+### Billing Accounts
+
 When creating a role in your master account for granting Harness access to your CUR, be sure and set `s3_bucket_arn` to the bucket that holds your CUR and `enable_billing` to true:
 
 ```terraform
 # create aws role
 module "ccm-billing" {
   source                = "harness-community/harness-ccm/aws"
-  version               = "0.1.0"
+  version               = "0.1.4"
 
   external_id             = "harness:891928451355:randomstringhere"
+
   s3_bucket_arn           = "arn:aws:s3:::my-cur-bucket"
   enable_billing          = true
 }
 ```
 
-You can then create the AWS CCM connector in your Harness account by referecing outputs from the module.
+[optional] You can then create the corresponding AWS CCM connector in your Harness account by referecing outputs from the module and using resource from the offical Harness provider.
 
 ```terraform
 # create harness aws ccm connector
@@ -49,6 +52,8 @@ resource "harness_platform_connector_awscc" "aws-master" {
 }
 ```
 
+### Member Accounts
+
 When creating roles in member accounts, for non billing access, just set the specific features you want to enable:
 
 ```terraform
@@ -66,7 +71,7 @@ module "ccm-member" {
 }
 ```
 
-You can then create the AWS CCM connector in your Harness account by referecing outputs from the module.
+[optional] You can then create the corresponding AWS CCM connector in your Harness account by referecing outputs from the module and using resource from the offical Harness provider.
 
 ```terraform
 # create harness aws ccm connector
