@@ -7,7 +7,6 @@ variable "s3_bucket_arn" {
 variable "aws_account_id" {
   description = "AWS account ID"
   type        = string
-  # You can set a default value here if needed
   default     = "891928451355"
 }
 
