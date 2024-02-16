@@ -7,14 +7,18 @@ variable "s3_bucket_arn" {
 variable "s3_bucket_name" {
   description = "S3 bucket name for the bucket that Harness uses to store and analyze your CUR"
   type        = string
-  # You can set a default value here if needed
-  # default     = "ce-customer-billing-data-prod"
+  default     = "ce-customer-billing-data-prod"
 }
 
+variable "aws_account_id" {
+  description = "AWS account ID"
+  type        = string
+  default     = "891928451355"
+}
 
 variable "external_id" {
   type        = string
-  description = "External ID given in the harness UI: harness:891928451355:<guid>"
+  description = "External ID given in the harness UI: harness:<aws_account_id>:<guid>"
 }
 
 variable "enable_billing" {

@@ -6,7 +6,7 @@ data "aws_iam_policy_document" "harness_ce" {
 
     principals {
       type        = "AWS"
-      identifiers = ["arn:aws:iam::891928451355:root"]
+      identifiers = ["arn:aws:iam::${var.aws_account_id}:root"]
     }
 
     condition {
