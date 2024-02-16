@@ -117,8 +117,8 @@ data "aws_iam_policy_document" "harness_billingmonitoring" {
     ]
 
     resources = [
-      "arn:aws:s3:::ce-customer-billing-data-prod*",
-      "arn:aws:s3:::ce-customer-billing-data-prod*/*"
+      "arn:aws:s3:::${var.s3_bucket_name}*",
+      "arn:aws:s3:::${var.s3_bucket_name}/*"
     ]
   }
 
