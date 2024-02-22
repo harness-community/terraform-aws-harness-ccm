@@ -8,7 +8,7 @@ Can be used as a module or a starting point for your own automation.
 
 This module creates AWS resources. To set up authentication to your AWS account please see the [AWS provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs).
 
-The examples below also include optional Harness resources `harness_platform_connector_awscc` that show how to create the nessesary AWS CCM connectors within Harness. If you wish to use those examples please see the [Harness provider documentation](https://registry.terraform.io/providers/harness/harness/latest/docs) on setting up authentication to Harness for Terraform.
+The examples below also include optional Harness resources `harness_platform_connector_awscc` that show how to create the necessary AWS CCM connectors within Harness. If you wish to use those examples please see the [Harness provider documentation](https://registry.terraform.io/providers/harness/harness/latest/docs) on setting up authentication to Harness for Terraform.
 
 ## Usage
 
@@ -29,7 +29,7 @@ module "ccm-billing" {
 }
 ```
 
-[optional] You can then create the corresponding AWS CCM connector in your Harness account by referecing outputs from the module and using resource from the offical Harness provider.
+[optional] You can then create the corresponding AWS CCM connector in your Harness account by referencing outputs from the module and using resource from the official Harness provider.
 
 ```terraform
 # create harness aws ccm connector
@@ -71,7 +71,7 @@ module "ccm-member" {
 }
 ```
 
-[optional] You can then create the corresponding AWS CCM connector in your Harness account by referecing outputs from the module and using resource from the offical Harness provider.
+[optional] You can then create the corresponding AWS CCM connector in your Harness account by referencing outputs from the module and using resource from the official Harness provider.
 
 ```terraform
 # create harness aws ccm connector
@@ -90,6 +90,21 @@ resource "harness_platform_connector_awscc" "aws-member" {
   }
 }
 ```
+
+## Fine-Grain Permissions
+
+Optionally we have included fine-grain policies for autostopping which list out specific IAM actions needed based on your target resource type.
+
+You can set these with `enable_autostopping_elb`, `enable_autostopping_ec2`, and `enable_autostopping_asg_rds_lambda`
+
+## CMK EBS Volumes
+
+When EBS volumes are encrypted using customer-managed keys using KMS, AutoStopping will not be able to start the instances with just the default permissions. Additional permissions are required to enable KMS decryption. To get KMS encrypted volumes to work with AutoStopping, the following changes must be performed:
+
+- Permissions added to IAM Role to allow `kms` actions
+- Tag KMS Keys - Add a `harness.io/allowForAutoStopping:true` tag to the KMS keys
+
+To enable the permissions, set the variable 
 
 ## how-to
 
@@ -199,6 +214,10 @@ No modules.
 | <a name="input_enable_events"></a> [enable\_events](#input\_enable\_events) | Enable AWS Resource Management | `bool` | `false` | no |
 | <a name="input_enable_governance"></a> [enable\_governance](#input\_enable\_governance) | Enable AWS Asset Governance | `bool` | `false` | no |
 | <a name="input_enable_optimization"></a> [enable\_optimization](#input\_enable\_optimization) | Enable AWS Optimization by Auto-Stopping | `bool` | `false` | no |
+| <a name="input_enable_cmk_ebs"></a> [enable\_cmk\_ebs](#input\_enable\_cmk\_ebs) | Enable CMK KMS permissions for EBS | `bool` | `false` | no |
+| <a name="input_enable_autostopping_elb"></a> [enable\_autostopping\_elb](#input\_enable\_autostopping\_elb) | Enable AutoStopping permissions for ELB | `bool` | `false` | no |
+| <a name="input_enable_autostopping_ec2"></a> [enable\_autostopping\_ec2](#input\_enable\_autostopping\_ec2) | Enable AutoStopping permissions for EC2 | `bool` | `false` | no |
+| <a name="input_enable_autostopping_asg_rds_lambda"></a> [enable\_autostopping\_asg\_rds\_lambda](#input\_enable\_autostopping\_asg\_rds\_lambda) | Enable AutoStopping permissions for ASG, RDS, and Lambda | `bool` | `false` | no |
 | <a name="input_external_id"></a> [external\_id](#input\_external\_id) | External ID given in the harness UI: harness:891928451355:<guid> | `string` | n/a | yes |
 | <a name="input_governance_policy_arns"></a> [governance\_policy\_arns](#input\_governance\_policy\_arns) | Policy arns to give role access to enforce governance | `list(string)` | `[]` | no |
 | <a name="input_prefix"></a> [prefix](#input\_prefix) | A string to add to all resources to add uniqueness | `string` | `""` | no |

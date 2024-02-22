@@ -57,6 +57,30 @@ variable "enable_commitment_write" {
   description = "Enable AWS Commitment Orchestrator Write"
 }
 
+variable "enable_cmk_ebs" {
+  type        = bool
+  default     = false
+  description = "Enable CMK KMS permissions for EBS"
+}
+
+variable "enable_autostopping_elb" {
+  type        = bool
+  default     = false
+  description = "Enable AutoStopping permissions for ELB"
+}
+
+variable "enable_autostopping_ec2" {
+  type        = bool
+  default     = false
+  description = "Enable AutoStopping permissions for EC2"
+}
+
+variable "enable_autostopping_asg_rds_lambda" {
+  type        = bool
+  default     = false
+  description = "Enable AutoStopping permissions for ASG, RDS, and Lambda"
+}
+
 variable "governance_policy_arns" {
   type        = list(string)
   default     = []

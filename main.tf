@@ -259,7 +259,12 @@ data "aws_iam_policy_document" "harness_optimsation" {
       "rds:StartDBCluster",
       "rds:StartDBInstance",
       "rds:StopDBCluster",
-      "rds:StopDBInstance"
+      "rds:StopDBInstance",
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:ListAllMyBuckets",
+      "s3:GetBucketLocation",
+      "secretsmanager:GetSecretValue"
     ]
 
     resources = ["*"]
@@ -285,26 +290,24 @@ data "aws_iam_policy_document" "harness_governance" {
 
     actions = [
       "ec2:Describe*",
+      "ec2:DeleteSnapshot",
+      "ec2:DeleteVolume",
       "ec2:Get*",
       "ec2:ListImagesInRecycleBin",
       "ec2:ListSnapshotsInRecycleBin",
-      "elasticbeanstalk:Check*",
-      "elasticbeanstalk:Describe*",
-      "elasticbeanstalk:List*",
-      "elasticbeanstalk:Request*",
-      "elasticbeanstalk:Retrieve*",
-      "elasticbeanstalk:Validate*",
       "elasticloadbalancing:Describe*",
       "rds:Describe*",
-      "rds:Download*",
       "rds:List*",
       "autoscaling-plans:Describe*",
       "autoscaling-plans:GetScalingPlanResourceForecastData",
       "autoscaling:Describe*",
       "autoscaling:GetPredictiveScalingForecast",
-      "s3:DescribeJob'",
+      "s3:DescribeJob",
       "s3:Get*",
-      "s3:List*"
+      "s3:List* ",
+      "cloudwatch:GetMetricStatistics",
+      "tag:GetResources",
+      "account:ListRegions"
     ]
 
     resources = ["*"]
@@ -330,69 +333,53 @@ resource "aws_iam_role_policy_attachment" "harness_ce_governance_enforce" {
   policy_arn = each.key
 }
 
-data "aws_iam_policy_document" "harness_commitment_read" {
+data "aws_iam_policy_document" "harness_commitment" {
   statement {
     effect = "Allow"
 
-    actions = [
-      "ec2:DescribeReservedInstancesOfferings",
-      "ce:GetSavingsPlansUtilization",
-      "ce:GetReservationUtilization",
-      "ec2:DescribeInstanceTypeOfferings",
-      "ce:GetDimensionValues",
-      "ce:GetSavingsPlansUtilizationDetails",
-      "ec2:DescribeReservedInstances",
-      "ce:GetReservationCoverage",
-      "ce:GetSavingsPlansCoverage",
-      "savingsplans:DescribeSavingsPlans",
-      "organizations:DescribeOrganization"
-    ]
+    actions = concat(
+      var.enable_commitment_read ? [
+        "ec2:DescribeReservedInstancesOfferings",
+        "ce:GetSavingsPlansUtilization",
+        "ce:GetReservationUtilization",
+        "ec2:DescribeInstanceTypeOfferings",
+        "ce:GetDimensionValues",
+        "ce:GetSavingsPlansUtilizationDetails",
+        "ec2:DescribeReservedInstances",
+        "ce:GetReservationCoverage",
+        "ce:GetSavingsPlansCoverage",
+        "savingsplans:DescribeSavingsPlans",
+        "organizations:DescribeOrganization",
+        "ce:GetCostAndUsage"
+      ] : [],
+      var.enable_commitment_write ? [
+        "ec2:PurchaseReservedInstancesOffering",
+        "ec2:GetReservedInstancesExchangeQuote",
+        "ec2:DescribeInstanceTypeOfferings",
+        "ec2:AcceptReservedInstancesExchangeQuote",
+        "ec2:DescribeReservedInstancesModifications",
+        "ec2:ModifyReservedInstances",
+        "ce:GetCostAndUsage",
+        "savingsplans:DescribeSavingsPlansOfferings",
+        "savingsplans:CreateSavingsPlan"
+      ] : []
+    )
 
     resources = ["*"]
   }
 }
 
-resource "aws_iam_policy" "harness_commitment_read" {
-  count       = var.enable_commitment_read ? 1 : 0
-  name        = "${var.prefix}HarnessCommitmentReadPolicy"
-  description = "Policy granting Harness Access to Enable Commitment Orchestration Read"
-  policy      = data.aws_iam_policy_document.harness_commitment_read.json
+resource "aws_iam_policy" "harness_commitment" {
+  count       = var.enable_commitment_read || var.enable_commitment_read ? 1 : 0
+  name        = "${var.prefix}HarnessCommitmentPolicy"
+  description = "Policy granting Harness Access to Enable Commitment Orchestration"
+  policy      = data.aws_iam_policy_document.harness_commitment.json
 }
 
-resource "aws_iam_role_policy_attachment" "harness_ce_commitment_read" {
-  count      = var.enable_commitment_read ? 1 : 0
+resource "aws_iam_role_policy_attachment" "harness_ce_commitment" {
+  count      = var.enable_commitment_read || var.enable_commitment_read ? 1 : 0
   role       = aws_iam_role.harness_ce.name
-  policy_arn = aws_iam_policy.harness_commitment_read[0].arn
-}
-
-data "aws_iam_policy_document" "harness_commitment_write" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "ec2:PurchaseReservedInstancesOffering",
-      "ec2:GetReservedInstancesExchangeQuote",
-      "ec2:DescribeInstanceTypeOfferings",
-      "ec2:AcceptReservedInstancesExchangeQuote",
-      "ec2:DescribeReservedInstancesModifications",
-      "ec2:ModifyReservedInstances"
-    ]
-
-    resources = ["*"]
-  }
-}
-
-resource "aws_iam_policy" "harness_commitment_write" {
-  count       = var.enable_commitment_write ? 1 : 0
-  name        = "${var.prefix}HarnessCommitmentWritePolicy"
-  description = "Policy granting Harness Access to Enable Commitment Orchestration Write"
-  policy      = data.aws_iam_policy_document.harness_commitment_write.json
-}
-
-resource "aws_iam_role_policy_attachment" "harness_ce_commitment_write" {
-  count      = var.enable_commitment_write ? 1 : 0
-  role       = aws_iam_role.harness_ce.name
-  policy_arn = aws_iam_policy.harness_commitment_write[0].arn
+  policy_arn = aws_iam_policy.harness_commitment[0].arn
 }
 
 data "aws_iam_policy_document" "harness_secret_access" {
