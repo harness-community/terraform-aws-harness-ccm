@@ -8,47 +8,32 @@ Can be used as a module or a starting point for your own automation.
 
 This module creates AWS resources. To set up authentication to your AWS account please see the [AWS provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs).
 
-The examples below also include optional Harness resources `harness_platform_connector_awscc` that show how to create the necessary AWS CCM connectors within Harness. If you wish to use those examples please see the [Harness provider documentation](https://registry.terraform.io/providers/harness/harness/latest/docs) on setting up authentication to Harness for Terraform.
-
 ## Usage
 
-### Billing Accounts
+### Master Payer Accounts
 
-When creating a role in your master account for granting Harness access to your CUR, be sure and set `s3_bucket_arn` to the bucket that holds your CUR and `enable_billing` to true:
+When creating a role in your master payer account for granting Harness access to your CUR, be sure and set `s3_bucket_arn` to the bucket that holds your CUR and `enable_billing` to true:
 
 ```terraform
-# create aws role
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {}
+
 module "ccm-billing" {
   source                = "harness-community/harness-ccm/aws"
   version               = "0.1.4"
 
-  external_id             = "harness:891928451355:randomstringhere"
+  external_id             = "harness:891928451355:<your harness account id>"
 
-  s3_bucket_arn           = "arn:aws:s3:::my-cur-bucket"
+  s3_bucket_arn           = "arn:aws:s3:::<s3 bucket name with cur data>"
   enable_billing          = true
-}
-```
-
-[optional] You can then create the corresponding AWS CCM connector in your Harness account by referencing outputs from the module and using resource from the official Harness provider.
-
-```terraform
-# create harness aws ccm connector
-resource "harness_platform_connector_awscc" "aws-master" {
-  identifier = "awsmaster"
-  name       = "aws-master"
-
-  account_id  = "759984737373"
-  report_name = "harness-ccm"
-  s3_bucket   = "my-cur-bucket"
-
-  features_enabled = [
-    "BILLING",
-  ]
-
-  cross_account_access {
-    role_arn    = module.ccm-billing.cross_account_role
-    external_id = module.ccm-billing.external_id
-  }
 }
 ```
 
@@ -57,37 +42,30 @@ resource "harness_platform_connector_awscc" "aws-master" {
 When creating roles in member accounts, for non billing access, just set the specific features you want to enable:
 
 ```terraform
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+}
+
+provider "aws" {}
+
 module "ccm-member" {
   source                = "harness-community/harness-ccm/aws"
-  version               = "0.1.0"
+  version               = "0.1.4"
   
-  external_id             = "harness:891928451355:XXXXXXXXXXXXXXX"
+  external_id             = "harness:891928451355:<your harness account id>"
+
   enable_events           = true
   enable_optimization     = true
   enable_governance       = true
+
   governance_policy_arn = [
     "arn:aws:iam::aws:policy/AdministratorAccess"
   ]
-}
-```
-
-[optional] You can then create the corresponding AWS CCM connector in your Harness account by referencing outputs from the module and using resource from the official Harness provider.
-
-```terraform
-# create harness aws ccm connector
-resource "harness_platform_connector_awscc" "aws-member" {
-  identifier = "awsmember"
-  name       = "aws-member"
-
-  account_id  = "759984737373"
-  features_enabled = [
-    "OPTIMIZATION",
-    "VISIBILITY",
-  ]
-  cross_account_access {
-    role_arn    = module.ccm-member.cross_account_role
-    external_id = module.ccm-member.external_id
-  }
 }
 ```
 
