@@ -11,7 +11,7 @@ variable "s3_bucket_name" {
 }
 
 variable "aws_account_id" {
-  description = "AWS account ID"
+  description = "Source AWS account ID, this is Harness' AWS account. If using Harness in SMP mode, set your account ID here"
   type        = string
   default     = "891928451355"
 }
