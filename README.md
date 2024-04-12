@@ -34,8 +34,13 @@ module "ccm-billing" {
 
   s3_bucket_arn           = "arn:aws:s3:::<s3 bucket name with cur data>"
   enable_billing          = true
+
+  enable_commitment_read  = true
+  enable_commitment_write = true
 }
 ```
+
+To enable the commitment orchestrator feature, set `enable_commitment_read` to get visibility on your commitments and `enable_commitment_write` to enable making purchases through Harness.
 
 ### Member Accounts
 
@@ -64,69 +69,31 @@ module "ccm-member" {
   enable_governance       = true
 
   governance_policy_arn = [
-    "arn:aws:iam::aws:policy/AdministratorAccess"
+    "arn:aws:iam::aws:policy/ReadOnlyAccess"
   ]
 }
 ```
 
-## Fine-Grain Permissions
+For example, if you want to enable Harness recommendations and ec2/ebs/rds dashboards, set `enable_events` to `true`.
+If you want to enable autostopping, set `enable_optimization` to `true`.
+If you want to enable asset governance, set `enable_governance` to `true`.
+
+If you want to add any other policies to the Harness role (maybe you want to enable more actions to be used with asset governance), you can pass them with `governance_policy_arn`.
+
+#### Fine-Grain Permissions
 
 Optionally we have included fine-grain policies for autostopping which list out specific IAM actions needed based on your target resource type.
 
 You can set these with `enable_autostopping_elb`, `enable_autostopping_ec2`, and `enable_autostopping_asg_rds_lambda`
 
-## CMK EBS Volumes
+#### CMK EBS Volumes
 
 When EBS volumes are encrypted using customer-managed keys using KMS, AutoStopping will not be able to start the instances with just the default permissions. Additional permissions are required to enable KMS decryption. To get KMS encrypted volumes to work with AutoStopping, the following changes must be performed:
 
 - Permissions added to IAM Role to allow `kms` actions
 - Tag KMS Keys - Add a `harness.io/allowForAutoStopping:true` tag to the KMS keys
 
-To enable the permissions, set the variable 
-
-## how-to
-
-Log in to [harness](app.harness.io) and navigate to the `Cloud Costs` service. Select `AWS`.
-
-![ccm-aws](./images/ccm_tf_0.png)
-
-Name the connector, and enter your AWS account ID.
-
-![ccm-aws](./images/ccm_tf_1.png)
-
-Enter the name of the usage report and s3 bucket. The defaults in this terraform example are `harness-ccm` and `harness-ccm`. If you are using the prefix variable, add the prefix in front of the default values. Do not create these resources, they will be created by Terraform.
-
-![ccm-aws](./images/ccm_tf_2.png)
-
-You can enable the CCM features you want on this screen (but the features will also be enabled optionally in the terraform example).
-
-![ccm-aws](./images/ccm_tf_3.png)
-
-Copy the `External ID` from the next page, you will need it as an input to the terraform.
-
-![ccm-aws](./images/ccm_tf_4.png)
-
-Copy the code locally, [install terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli), set up your AWS credentils, and optionally enable or disable any of the CCM features by editing the `variables.tf` file. If you are using a prefix, make sure the value matches the prefix you specified previously.
-
-![ccm-aws](./images/ccm_tf_vars.png)
-
-Now run a `terraform init`, `terraform apply`, and enter the `External ID` when prompted.
-
-![ccm-aws](./images/ccm_tf_input.png)
-
-When complete the terraform will output an `Cross Account Role ARN`
-
-![ccm-aws](./images/ccm_tf_output.png)
-
-Paste the role arn into the AWS Connector wizard and continue.
-
-![ccm-aws](./images/ccm_tf_5.png)
-
-The next screen will verify you have set up the AWS Connector correctly.
-
-![ccm-aws](./images/ccm_tf_6.png)
-
-To enable features in the future, you can simply change the input varibles and rerun the terraform.
+To enable these permissions, set the variable.
 
 ## Requirements
 
