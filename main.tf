@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 data "aws_iam_policy_document" "harness_ce" {
   statement {
     effect = "Allow"
@@ -188,10 +190,31 @@ data "aws_iam_policy_document" "harness_optimsationlambda" {
 
     resources = ["*"]
   }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "kms:List*",
+      "kms:Describe*",
+      "kms:Decrypt"
+    ]
+
+    resources = ["arn:aws:kms:*:${data.aws_caller_identity.current.id}:key/*"]
+
+    condition {
+      test     = "ForAnyValue:StringEquals"
+      variable = "kms:ResourceAliases"
+
+      values = [
+        "aws/lambda",
+      ]
+    }
+  }
 }
 
 resource "aws_iam_policy" "harness_optimsationlambda" {
-  count       = var.enable_optimization ? 1 : 0
+  count       = var.enable_optimization || var.enable_autostopping_elb || var.enable_autostopping_ec2 || var.enable_autostopping_asg_rds_lambda ? 1 : 0
   name        = "${var.prefix}HarnessOptimsationLambdaPolicy"
   description = "Policy granting Harness Access to Enable Cost Optimisation"
   policy      = data.aws_iam_policy_document.harness_optimsationlambda.json
