@@ -284,47 +284,10 @@ resource "aws_iam_role_policy_attachment" "harness_ce_optimsation" {
   policy_arn = aws_iam_policy.harness_optimsation[0].arn
 }
 
-data "aws_iam_policy_document" "harness_governance" {
-  statement {
-    effect = "Allow"
-
-    actions = [
-      "ec2:Describe*",
-      "ec2:DeleteSnapshot",
-      "ec2:DeleteVolume",
-      "ec2:Get*",
-      "ec2:ListImagesInRecycleBin",
-      "ec2:ListSnapshotsInRecycleBin",
-      "elasticloadbalancing:Describe*",
-      "rds:Describe*",
-      "rds:List*",
-      "autoscaling-plans:Describe*",
-      "autoscaling-plans:GetScalingPlanResourceForecastData",
-      "autoscaling:Describe*",
-      "autoscaling:GetPredictiveScalingForecast",
-      "s3:DescribeJob",
-      "s3:Get*",
-      "s3:List* ",
-      "cloudwatch:GetMetricStatistics",
-      "tag:GetResources",
-      "account:ListRegions"
-    ]
-
-    resources = ["*"]
-  }
-}
-
-resource "aws_iam_policy" "harness_governance" {
-  count       = var.enable_governance ? 1 : 0
-  name        = "${var.prefix}HarnessGovernancePolicy"
-  description = "Policy granting Harness Access to Enable Asset Governance"
-  policy      = data.aws_iam_policy_document.harness_governance.json
-}
-
 resource "aws_iam_role_policy_attachment" "harness_ce_governance" {
   count      = var.enable_governance ? 1 : 0
   role       = aws_iam_role.harness_ce.name
-  policy_arn = aws_iam_policy.harness_governance[0].arn
+  policy_arn = "arn:aws:iam::aws:policy/job-function/ViewOnlyAccess"
 }
 
 resource "aws_iam_role_policy_attachment" "harness_ce_governance_enforce" {
@@ -350,7 +313,9 @@ data "aws_iam_policy_document" "harness_commitment" {
         "ce:GetSavingsPlansCoverage",
         "savingsplans:DescribeSavingsPlans",
         "organizations:DescribeOrganization",
-        "ce:GetCostAndUsage"
+        "ce:GetCostAndUsage",
+        "rds:DescribeReservedDBInstancesOfferings",
+        "pricing:GetProducts"
       ] : [],
       var.enable_commitment_write ? [
         "ec2:PurchaseReservedInstancesOffering",
@@ -361,7 +326,8 @@ data "aws_iam_policy_document" "harness_commitment" {
         "ec2:ModifyReservedInstances",
         "ce:GetCostAndUsage",
         "savingsplans:DescribeSavingsPlansOfferings",
-        "savingsplans:CreateSavingsPlan"
+        "savingsplans:CreateSavingsPlan",
+        "rds:PurchaseReservedDBInstancesOffering"
       ] : []
     )
 
