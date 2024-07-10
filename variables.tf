@@ -75,10 +75,10 @@ variable "enable_autostopping_ec2" {
   description = "Enable AutoStopping permissions for EC2"
 }
 
-variable "enable_autostopping_asg_rds_lambda" {
+variable "enable_autostopping_asg_ecs_rds" {
   type        = bool
   default     = false
-  description = "Enable AutoStopping permissions for ASG, RDS, and Lambda"
+  description = "Enable AutoStopping permissions for ASG, ECS and RDS"
 }
 
 variable "governance_policy_arns" {

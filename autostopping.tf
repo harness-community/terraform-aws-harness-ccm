@@ -1,45 +1,15 @@
 # the following policies are not included in the standard CCM enablement CF template
 # these are least privilage policies for autostopping based on the target resource type
 
-data "aws_iam_policy_document" "autostopping_asg_rds_lambda" {
+data "aws_iam_policy_document" "autostopping_base" {
   statement {
     effect = "Allow"
 
     actions = [
       "acm:ListCertificates",
-      "autoscaling:AttachInstances",
-      "autoscaling:AttachLoadBalancers",
-      "autoscaling:AttachLoadBalancerTargetGroups",
-      "autoscaling:CreateAutoScalingGroup",
-      "autoscaling:CreateLaunchConfiguration",
-      "autoscaling:CreateOrUpdateTags",
-      "autoscaling:DeleteTags",
-      "autoscaling:DescribeAutoScalingGroups",
-      "autoscaling:DescribeTargetHealth",
-      "autoscaling:DescribeAutoScalingInstances",
-      "autoscaling:DescribeInstanceRefreshes",
-      "autoscaling:DescribeLaunchConfigurations",
-      "autoscaling:DescribeLoadBalancers",
-      "autoscaling:DescribeLoadBalancerTargetGroups",
-      "autoscaling:DescribeTags",
-      "autoscaling:DetachInstances",
-      "autoscaling:DetachLoadBalancers",
-      "autoscaling:DetachLoadBalancerTargetGroups",
-      "autoscaling:PutScalingPolicy",
-      "autoscaling:SetDesiredCapacity",
-      "autoscaling:SetInstanceHealth",
-      "autoscaling:TerminateInstanceInAutoScalingGroup",
-      "autoscaling:UpdateAutoScalingGroup",
       "cloudwatch:GetMetricData",
       "cloudwatch:GetMetricStatistics",
       "cloudwatch:ListMetrics",
-      "rds:DescribeDBClusters",
-      "rds:DescribeDBInstances",
-      "rds:ListTagsForResource",
-      "rds:StartDBCluster",
-      "rds:StartDBInstance",
-      "rds:StopDBCluster",
-      "rds:StopDBInstance",
       "route53:ChangeResourceRecordSets",
       "route53:GetHealthCheck",
       "route53:GetHealthCheckStatus",
@@ -48,28 +18,6 @@ data "aws_iam_policy_document" "autostopping_asg_rds_lambda" {
       "route53:ListHostedZonesByName",
       "route53:ListResourceRecordSets",
       "tag:GetResources",
-      "ecs:DeleteAttributes",
-      "ecs:DescribeCapacityProviders",
-      "ecs:DescribeClusters",
-      "ecs:DescribeContainerInstances",
-      "ecs:DescribeServices",
-      "ecs:DescribeTaskDefinition",
-      "ecs:DescribeTasks",
-      "ecs:DescribeTaskSets",
-      "ecs:ListAccountSettings",
-      "ecs:ListAttributes",
-      "ecs:ListClusters",
-      "ecs:ListContainerInstances",
-      "ecs:ListServices",
-      "ecs:ListTagsForResource",
-      "ecs:ListTaskDefinitions",
-      "ecs:ListTasks",
-      "ecs:RunTask",
-      "ecs:StartTask",
-      "ecs:StopTask",
-      "ecs:TagResource",
-      "ecs:UntagResource",
-      "ecs:UpdateService",
       "iam:AddRoleToInstanceProfile",
       "iam:CreateServiceLinkedRole",
       "iam:GetUser",
@@ -132,19 +80,93 @@ data "aws_iam_policy_document" "autostopping_asg_rds_lambda" {
   }
 }
 
-resource "aws_iam_policy" "autostopping_asg_rds_lambda" {
-  count       = var.enable_autostopping_asg_rds_lambda ? 1 : 0
-  name        = "${var.prefix}HarnessAutostoppingASGRDSLambda"
-  description = "Policy granting Harness Access to ASG, RDS, and Lambda"
-  policy      = data.aws_iam_policy_document.autostopping_asg_rds_lambda.json
+resource "aws_iam_policy" "autostopping_base" {
+  count       = var.enable_autostopping_asg_ecs_rds || var.enable_autostopping_elb || var.enable_autostopping_ec2 ? 1 : 0
+  name        = "${var.prefix}HarnessAutostoppingBase"
+  description = "Policy granting base Harness Access for autostopping"
+  policy      = data.aws_iam_policy_document.autostopping_base.json
 }
 
-resource "aws_iam_role_policy_attachment" "autostopping_asg_rds_lambda" {
-  count      = var.enable_autostopping_asg_rds_lambda ? 1 : 0
+resource "aws_iam_role_policy_attachment" "autostopping_base" {
+  count      = var.enable_autostopping_asg_ecs_rds || var.enable_autostopping_elb || var.enable_autostopping_ec2 ? 1 : 0
   role       = aws_iam_role.harness_ce.name
-  policy_arn = aws_iam_policy.autostopping_asg_rds_lambda[0].arn
+  policy_arn = aws_iam_policy.autostopping_base[0].arn
 }
 
+data "aws_iam_policy_document" "autostopping_asg_ecs_rds" {
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "autoscaling:AttachInstances",
+      "autoscaling:AttachLoadBalancers",
+      "autoscaling:AttachLoadBalancerTargetGroups",
+      "autoscaling:CreateAutoScalingGroup",
+      "autoscaling:CreateLaunchConfiguration",
+      "autoscaling:CreateOrUpdateTags",
+      "autoscaling:DeleteTags",
+      "autoscaling:DescribeAutoScalingGroups",
+      "autoscaling:DescribeTargetHealth",
+      "autoscaling:DescribeAutoScalingInstances",
+      "autoscaling:DescribeInstanceRefreshes",
+      "autoscaling:DescribeLaunchConfigurations",
+      "autoscaling:DescribeLoadBalancers",
+      "autoscaling:DescribeLoadBalancerTargetGroups",
+      "autoscaling:DescribeTags",
+      "autoscaling:DetachInstances",
+      "autoscaling:DetachLoadBalancers",
+      "autoscaling:DetachLoadBalancerTargetGroups",
+      "autoscaling:PutScalingPolicy",
+      "autoscaling:SetDesiredCapacity",
+      "autoscaling:SetInstanceHealth",
+      "autoscaling:TerminateInstanceInAutoScalingGroup",
+      "autoscaling:UpdateAutoScalingGroup",
+      "rds:DescribeDBClusters",
+      "rds:DescribeDBInstances",
+      "rds:ListTagsForResource",
+      "rds:StartDBCluster",
+      "rds:StartDBInstance",
+      "rds:StopDBCluster",
+      "rds:StopDBInstance",
+      "ecs:DeleteAttributes",
+      "ecs:DescribeCapacityProviders",
+      "ecs:DescribeClusters",
+      "ecs:DescribeContainerInstances",
+      "ecs:DescribeServices",
+      "ecs:DescribeTaskDefinition",
+      "ecs:DescribeTasks",
+      "ecs:DescribeTaskSets",
+      "ecs:ListAccountSettings",
+      "ecs:ListAttributes",
+      "ecs:ListClusters",
+      "ecs:ListContainerInstances",
+      "ecs:ListServices",
+      "ecs:ListTagsForResource",
+      "ecs:ListTaskDefinitions",
+      "ecs:ListTasks",
+      "ecs:RunTask",
+      "ecs:StartTask",
+      "ecs:StopTask",
+      "ecs:TagResource",
+      "ecs:UntagResource",
+      "ecs:UpdateService",
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "autostopping_asg_ecs_rds" {
+  count       = var.enable_autostopping_asg_ecs_rds ? 1 : 0
+  name        = "${var.prefix}HarnessAutostoppingASGECSRDSLambda"
+  description = "Policy granting Harness Access to ASG, ECS and RDS"
+  policy      = data.aws_iam_policy_document.autostopping_asg_ecs_rds.json
+}
+
+resource "aws_iam_role_policy_attachment" "autostopping_asg_ecs_rds" {
+  count      = var.enable_autostopping_asg_ecs_rds ? 1 : 0
+  role       = aws_iam_role.harness_ce.name
+  policy_arn = aws_iam_policy.autostopping_asg_ecs_rds[0].arn
+}
 
 data "aws_iam_policy_document" "autostopping_ec2" {
   statement {
