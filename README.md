@@ -66,17 +66,19 @@ module "ccm-member" {
 
   enable_events           = true
   enable_optimization     = true
+  # enable view access for governance dry runs
   enable_governance       = true
 
+  # enable write access for governance enforcements
   governance_policy_arn = [
-    "arn:aws:iam::aws:policy/ReadOnlyAccess"
+    "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
   ]
 }
 ```
 
 For example, if you want to enable Harness recommendations and ec2/ebs/rds dashboards, set `enable_events` to `true`.
 If you want to enable autostopping, set `enable_optimization` to `true`.
-If you want to enable asset governance, set `enable_governance` to `true`.
+If you want to enable asset governance read access, set `enable_governance` to `true`.
 
 If you want to add any other policies to the Harness role (maybe you want to enable more actions to be used with asset governance), you can pass them with `governance_policy_arn`.
 
