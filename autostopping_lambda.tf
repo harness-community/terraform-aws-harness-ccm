@@ -27,7 +27,6 @@ data "aws_iam_policy_document" "harness_optimsationlambda" {
       "ec2:CreateNetworkInsightsPath",
       "ec2:CreateNetworkInterfacePermission",
       "ec2:CreateNetworkAcl",
-      "ec2:*",
       "ec2:CreateNetworkAclEntry",
       "logs:CreateLogGroup",
       "logs:CreateLogStream",
