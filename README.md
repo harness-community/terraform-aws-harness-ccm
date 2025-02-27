@@ -46,6 +46,12 @@ To enable the commitment orchestrator feature, set `enable_commitment_read` to g
 
 When creating roles in member accounts, for non billing access, just set the specific features you want to enable:
 
+- enable_events: gather inventory for dashboards and ec2/ecs recommendation data (read only)
+- enable_optimization: enables access required for autostopping (permissive)
+  - for fine-grain access, see section below
+- enable_governance: grant view-only access to be able to run governance in dry run and create custom recommendations (read only)
+- governance_policy_arn: to use governance to make changes, give custom policies that give the access requred (write)
+
 ```terraform
 terraform {
   required_providers {
@@ -75,12 +81,6 @@ module "ccm-member" {
   ]
 }
 ```
-
-For example, if you want to enable Harness recommendations and ec2/ebs/rds dashboards, set `enable_events` to `true`.
-If you want to enable autostopping, set `enable_optimization` to `true`.
-If you want to enable asset governance read access, set `enable_governance` to `true`.
-
-If you want to add any other policies to the Harness role (maybe you want to enable more actions to be used with asset governance), you can pass them with `governance_policy_arn`.
 
 #### Fine-Grain Permissions
 
