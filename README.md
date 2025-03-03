@@ -42,6 +42,15 @@ module "ccm-billing" {
 
 To enable the commitment orchestrator feature, set `enable_commitment_read` to get visibility on your commitments and `enable_commitment_write` to enable making purchases through Harness.
 
+#### EU Cluster Accounts
+
+If your Harness account is located in our EU cluster, you will need to pass the following inputs:
+```
+  s3_bucket_name = "harness-ccm-service-data-bucket-prod-eu"
+  aws_account_id = "783764615875"
+  external_id    = "harness:783764615875:<your harness account id>"
+```
+
 ### Member Accounts
 
 When creating roles in member accounts, for non billing access, just set the specific features you want to enable:
