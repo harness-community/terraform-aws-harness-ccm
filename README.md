@@ -49,6 +49,9 @@ If your Harness account is located in our EU cluster, you will need to pass the 
   s3_bucket_name = "harness-ccm-service-data-bucket-prod-eu"
   aws_account_id = "783764615875"
   external_id    = "harness:783764615875:<your harness account id>"
+  trusted_roles  = [
+    "arn:aws:iam::783764615875:user/harness-ccm-service-user-prod-eu"
+  ]
 ```
 
 ### Member Accounts
@@ -173,24 +176,25 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_additional_external_ids"></a> [additional\_external\_ids](#input\_additional\_external\_ids) | Additional external ids to allow | `list(string)` | `[]` | no |
-| <a name="input_aws_account_id"></a> [aws\_account\_id](#input\_aws\_account\_id) | Source AWS account ID, this is Harness' AWS account. If using Harness in SMP mode, set your account ID here | `string` | `"891928451355"` | no |
-| <a name="input_enable_autostopping_asg_ecs_rds"></a> [enable\_autostopping\_asg\_ecs\_rds](#input\_enable\_autostopping\_asg\_ecs\_rds) | Enable AutoStopping permissions for ASG, ECS and RDS | `bool` | `false` | no |
-| <a name="input_enable_autostopping_ec2"></a> [enable\_autostopping\_ec2](#input\_enable\_autostopping\_ec2) | Enable AutoStopping permissions for EC2 | `bool` | `false` | no |
-| <a name="input_enable_autostopping_elb"></a> [enable\_autostopping\_elb](#input\_enable\_autostopping\_elb) | Enable AutoStopping permissions for ELB | `bool` | `false` | no |
-| <a name="input_enable_billing"></a> [enable\_billing](#input\_enable\_billing) | Enable AWS Cost Visibility | `bool` | `false` | no |
-| <a name="input_enable_cmk_ebs"></a> [enable\_cmk\_ebs](#input\_enable\_cmk\_ebs) | Enable CMK KMS permissions for EBS | `bool` | `false` | no |
-| <a name="input_enable_commitment_read"></a> [enable\_commitment\_read](#input\_enable\_commitment\_read) | Enable AWS Commitment Orchestrator Read | `bool` | `false` | no |
-| <a name="input_enable_commitment_write"></a> [enable\_commitment\_write](#input\_enable\_commitment\_write) | Enable AWS Commitment Orchestrator Write | `bool` | `false` | no |
-| <a name="input_enable_events"></a> [enable\_events](#input\_enable\_events) | Enable AWS Resource Management | `bool` | `false` | no |
-| <a name="input_enable_governance"></a> [enable\_governance](#input\_enable\_governance) | Enable AWS Asset Governance | `bool` | `false` | no |
-| <a name="input_enable_optimization"></a> [enable\_optimization](#input\_enable\_optimization) | Enable AWS Optimization by Auto-Stopping | `bool` | `false` | no |
-| <a name="input_external_id"></a> [external\_id](#input\_external\_id) | External ID given in the harness UI: harness:<aws\_account\_id>:<guid> | `string` | n/a | yes |
-| <a name="input_governance_policy_arns"></a> [governance\_policy\_arns](#input\_governance\_policy\_arns) | Policy arns to give role access to enforce governance | `list(string)` | `[]` | no |
-| <a name="input_prefix"></a> [prefix](#input\_prefix) | A string to add to all resources to add uniqueness | `string` | `""` | no |
-| <a name="input_s3_bucket_arn"></a> [s3\_bucket\_arn](#input\_s3\_bucket\_arn) | S3 Arn for the bucket that holds your CUR | `string` | `""` | no |
-| <a name="input_s3_bucket_name"></a> [s3\_bucket\_name](#input\_s3\_bucket\_name) | S3 bucket name for the bucket that Harness uses to store and analyze your CUR | `string` | `"ce-customer-billing-data-prod"` | no |
-| <a name="input_secrets"></a> [secrets](#input\_secrets) | List of secrets that harness should have access to | `list(string)` | `[]` | no |
+| additional\_external\_ids | Additional external ids to allow | `list(string)` | `[]` | no |
+| aws\_account\_id | Source AWS account ID, this is Harness' AWS account. If using Harness in SMP mode, set your account ID here | `string` | `"891928451355"` | no |
+| enable\_autostopping\_asg\_ecs\_rds | Enable AutoStopping permissions for ASG, ECS and RDS | `bool` | `false` | no |
+| enable\_autostopping\_ec2 | Enable AutoStopping permissions for EC2 | `bool` | `false` | no |
+| enable\_autostopping\_elb | Enable AutoStopping permissions for ELB | `bool` | `false` | no |
+| enable\_billing | Enable AWS Cost Visibility | `bool` | `false` | no |
+| enable\_cmk\_ebs | Enable CMK KMS permissions for EBS | `bool` | `false` | no |
+| enable\_commitment\_read | Enable AWS Commitment Orchestrator Read | `bool` | `false` | no |
+| enable\_commitment\_write | Enable AWS Commitment Orchestrator Write | `bool` | `false` | no |
+| enable\_events | Enable AWS Resource Management | `bool` | `false` | no |
+| enable\_governance | Enable AWS Asset Governance | `bool` | `false` | no |
+| enable\_optimization | Enable AWS Optimization by Auto-Stopping | `bool` | `false` | no |
+| external\_id | External ID given in the harness UI: harness:<aws\_account\_id>:<guid> | `string` | n/a | yes |
+| governance\_policy\_arns | Policy arns to give role access to enforce governance | `list(string)` | `[]` | no |
+| prefix | A string to add to all resources to add uniqueness | `string` | `""` | no |
+| s3\_bucket\_arn | S3 Arn for the bucket that holds your CUR | `string` | `""` | no |
+| s3\_bucket\_name | S3 bucket name for the bucket that Harness uses to store and analyze your CUR | `string` | `"ce-customer-billing-data-prod"` | no |
+| secrets | List of secrets that harness should have access to | `list(string)` | `[]` | no |
+| trusted\_roles | Roles allowed to assume the created role. Defaults are listed for accounts based in US Harness clusters (0,1,2,3,4) | `list(string)` | <pre>[<br/>  "arn:aws:iam::891928451355:user/prod-data-pipeline-dont-delete",<br/>  "arn:aws:iam::891928451355:user/ce-prod-bucket-admin"<br/>]</pre> | no |
 
 ## Outputs
 

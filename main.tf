@@ -5,11 +5,8 @@ data "aws_iam_policy_document" "harness_ce" {
     actions = ["sts:AssumeRole"]
 
     principals {
-      type = "AWS"
-      identifiers = [
-        "arn:aws:iam::${var.aws_account_id}:user/prod-data-pipeline-dont-delete",
-        "arn:aws:iam::${var.aws_account_id}:user/ce-prod-bucket-admin"
-      ]
+      type        = "AWS"
+      identifiers = var.trusted_roles
     }
 
     condition {
