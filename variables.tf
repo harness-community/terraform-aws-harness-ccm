@@ -16,6 +16,15 @@ variable "aws_account_id" {
   default     = "891928451355"
 }
 
+variable "trusted_roles" {
+  type        = list(string)
+  description = "Roles allowed to assume the created role. Defaults are listed for accounts based in US Harness clusters (0,1,2,3,4)"
+  default = [
+    "arn:aws:iam::891928451355:user/prod-data-pipeline-dont-delete",
+    "arn:aws:iam::891928451355:user/ce-prod-bucket-admin"
+  ]
+}
+
 variable "external_id" {
   type        = string
   description = "External ID given in the harness UI: harness:<aws_account_id>:<guid>"
