@@ -72,22 +72,28 @@ variable "enable_cmk_ebs" {
   description = "Enable CMK KMS permissions for EBS"
 }
 
-variable "enable_autostopping_elb" {
-  type        = bool
-  default     = false
-  description = "Enable AutoStopping permissions for ELB"
+variable "autostopping_loadbalancers" {
+  type        = list(string)
+  default     = ["alb", "proxy"]
+  description = "Load balancers to be used with autostopping"
+  validation {
+    condition = alltrue([
+      for i in var.autostopping_loadbalancers : contains(["alb", "proxy"])
+    ])
+    error_message = "Allowed LB types are alb or proxy"
+  }
 }
 
-variable "enable_autostopping_ec2" {
-  type        = bool
-  default     = false
-  description = "Enable AutoStopping permissions for EC2"
-}
-
-variable "enable_autostopping_asg_ecs_rds" {
-  type        = bool
-  default     = false
-  description = "Enable AutoStopping permissions for ASG, ECS and RDS"
+variable "autostopping_resources" {
+  type        = list(string)
+  default     = ["ec2", "ec2-spot", "asg", "rds", "ecs"]
+  description = "Resources to allow autostopping for"
+  validation {
+    condition = alltrue([
+      for i in var.autostopping_resources : contains(["ec2", "ec2-spot", "asg", "rds", "ecs"])
+    ])
+    error_message = "Allowed resource types are ec2, ec2-spot, asg, rds, or ecs"
+  }
 }
 
 variable "governance_policy_arns" {
