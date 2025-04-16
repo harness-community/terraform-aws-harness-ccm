@@ -5,13 +5,13 @@ variable "s3_bucket_arn" {
 }
 
 variable "s3_bucket_name" {
-  description = "S3 bucket name for the bucket that Harness uses to store and analyze your CUR"
+  description = "S3 bucket name for the bucket that Harness uses to store and analyze your CUR. Given in the UI when setting up connectors."
   type        = string
   default     = "ce-customer-billing-data-prod"
 }
 
 variable "aws_account_id" {
-  description = "Source AWS account ID, this is Harness' AWS account. If using Harness in SMP mode, set your account ID here"
+  description = "Harness AWS account id, which will assume the role created in this module. Given in the UI when setting up connectors. If using Harness in SMP mode, set your account ID here"
   type        = string
   default     = "891928451355"
 }

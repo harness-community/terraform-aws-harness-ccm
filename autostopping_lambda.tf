@@ -1,3 +1,5 @@
+# When doing ALB stopping we use a lambda function to hold user traffic while instances are started up
+# This is the role used for execution of that lambda function
 data "aws_iam_policy_document" "harness_ce_lambda" {
   statement {
     effect = "Allow"
