@@ -28,7 +28,7 @@ provider "aws" {}
 
 module "ccm-billing" {
   source                = "harness-community/harness-ccm/aws"
-  version               = "0.1.4"
+  version               = "1.0.0"
 
   external_id             = "harness:891928451355:<your harness account id>"
 
@@ -78,7 +78,7 @@ provider "aws" {}
 
 module "ccm-member" {
   source                = "harness-community/harness-ccm/aws"
-  version               = "0.1.4"
+  version               = "1.0.0"
   
   external_id             = "harness:891928451355:<your harness account id>"
 
