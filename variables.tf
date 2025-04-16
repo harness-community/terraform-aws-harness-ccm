@@ -42,12 +42,6 @@ variable "enable_events" {
   description = "Enable AWS Resource Management"
 }
 
-variable "enable_optimization" {
-  type        = bool
-  default     = false
-  description = "Enable AWS Optimization by Auto-Stopping"
-}
-
 variable "enable_governance" {
   type        = bool
   default     = false
@@ -78,7 +72,7 @@ variable "autostopping_loadbalancers" {
   description = "Load balancers to be used with autostopping"
   validation {
     condition = alltrue([
-      for i in var.autostopping_loadbalancers : contains(["alb", "proxy"])
+      for i in var.autostopping_loadbalancers : contains(["alb", "proxy"], i)
     ])
     error_message = "Allowed LB types are alb or proxy"
   }
@@ -90,7 +84,7 @@ variable "autostopping_resources" {
   description = "Resources to allow autostopping for"
   validation {
     condition = alltrue([
-      for i in var.autostopping_resources : contains(["ec2", "ec2-spot", "asg", "rds", "ecs"])
+      for i in var.autostopping_resources : contains(["ec2", "ec2-spot", "asg", "rds", "ecs"], i)
     ])
     error_message = "Allowed resource types are ec2, ec2-spot, asg, rds, or ecs"
   }

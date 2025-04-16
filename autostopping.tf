@@ -106,9 +106,9 @@ data "aws_iam_policy_document" "autostopping_loadbalancers" {
   dynamic "statement" {
     for_each = var.autostopping_loadbalancers
     content {
-      sid       = each.key
+      sid       = replace(statement.value, "-", "")
       effect    = "Allow"
-      actions   = local.autostopping_actions[each.key]
+      actions   = local.autostopping_actions[statement.value]
       resources = ["*"]
     }
   }
@@ -132,9 +132,9 @@ data "aws_iam_policy_document" "autostopping_resources" {
   dynamic "statement" {
     for_each = var.autostopping_resources
     content {
-      sid       = each.key
+      sid       = replace(statement.value, "-", "")
       effect    = "Allow"
-      actions   = local.autostopping_actions[each.key]
+      actions   = local.autostopping_actions[statement.value]
       resources = ["*"]
     }
   }

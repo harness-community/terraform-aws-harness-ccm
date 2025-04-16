@@ -82,8 +82,13 @@ module "ccm-member" {
   
   external_id             = "harness:891928451355:<your harness account id>"
 
+  # for inventory and recommendations
   enable_events           = true
-  enable_optimization     = true
+
+  # enable specific types of autostopping to be used
+  autostopping_loadbalancers = ["alb", "proxy"]
+  autostopping_resources     = ["ec2", "ec2-spot", "asg", "rds", "ecs"]
+
   # enable view access for governance dry runs
   enable_governance       = true
 
@@ -113,13 +118,13 @@ To enable these permissions, set the variable.
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0 |
+| aws | >= 4.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.0 |
+| aws | >= 4.0 |
 
 ## Modules
 
@@ -129,11 +134,9 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [aws_iam_policy.autostopping_asg_ecs_rds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.autostopping_base](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.autostopping_cmk_ebs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.autostopping_ec2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
-| [aws_iam_policy.autostopping_elb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.autostopping_loadbalancers](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.autostopping_resources](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.harness_billingmonitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.harness_commitment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.harness_eventsmonitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
@@ -143,11 +146,9 @@ No modules.
 | [aws_iam_policy.harness_secret_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.harness_ce](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.harness_ce_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_role_policy_attachment.autostopping_asg_ecs_rds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.autostopping_base](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.autostopping_cmk_ebs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.autostopping_ec2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_role_policy_attachment.autostopping_elb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.autostopping_loadbalancers](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.autostopping_resources](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.harness_ce_billingmonitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.harness_ce_commitment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.harness_ce_eventsmonitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
@@ -157,11 +158,9 @@ No modules.
 | [aws_iam_role_policy_attachment.harness_ce_lambda_optimsationlambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.harness_ce_optimsation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.harness_secret_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
-| [aws_iam_policy_document.autostopping_asg_ecs_rds](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.autostopping_base](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.autostopping_cmk_ebs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.autostopping_ec2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.autostopping_elb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.autostopping_loadbalancers](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.autostopping_resources](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.harness_billingmonitoring](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.harness_ce](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.harness_ce_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
@@ -177,10 +176,9 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | additional\_external\_ids | Additional external ids to allow | `list(string)` | `[]` | no |
+| autostopping\_loadbalancers | Load balancers to be used with autostopping | `list(string)` | <pre>[<br/>  "alb",<br/>  "proxy"<br/>]</pre> | no |
+| autostopping\_resources | Resources to allow autostopping for | `list(string)` | <pre>[<br/>  "ec2",<br/>  "ec2-spot",<br/>  "asg",<br/>  "rds",<br/>  "ecs"<br/>]</pre> | no |
 | aws\_account\_id | Source AWS account ID, this is Harness' AWS account. If using Harness in SMP mode, set your account ID here | `string` | `"891928451355"` | no |
-| enable\_autostopping\_asg\_ecs\_rds | Enable AutoStopping permissions for ASG, ECS and RDS | `bool` | `false` | no |
-| enable\_autostopping\_ec2 | Enable AutoStopping permissions for EC2 | `bool` | `false` | no |
-| enable\_autostopping\_elb | Enable AutoStopping permissions for ELB | `bool` | `false` | no |
 | enable\_billing | Enable AWS Cost Visibility | `bool` | `false` | no |
 | enable\_cmk\_ebs | Enable CMK KMS permissions for EBS | `bool` | `false` | no |
 | enable\_commitment\_read | Enable AWS Commitment Orchestrator Read | `bool` | `false` | no |
@@ -200,8 +198,8 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_cross_account_role"></a> [cross\_account\_role](#output\_cross\_account\_role) | n/a |
-| <a name="output_external_id"></a> [external\_id](#output\_external\_id) | n/a |
+| cross\_account\_role | n/a |
+| external\_id | n/a |
 
 ## References
 
