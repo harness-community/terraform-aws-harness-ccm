@@ -5,13 +5,13 @@ variable "s3_bucket_arn" {
 }
 
 variable "s3_bucket_name" {
-  description = "S3 bucket name for the bucket that Harness uses to store and analyze your CUR"
+  description = "S3 bucket name for the bucket that Harness uses to store and analyze your CUR. Given in the UI when setting up connectors."
   type        = string
   default     = "ce-customer-billing-data-prod"
 }
 
 variable "aws_account_id" {
-  description = "Source AWS account ID, this is Harness' AWS account. If using Harness in SMP mode, set your account ID here"
+  description = "Harness AWS account id, which will assume the role created in this module. Given in the UI when setting up connectors. If using Harness in SMP mode, set your account ID here"
   type        = string
   default     = "891928451355"
 }
@@ -42,12 +42,6 @@ variable "enable_events" {
   description = "Enable AWS Resource Management"
 }
 
-variable "enable_optimization" {
-  type        = bool
-  default     = false
-  description = "Enable AWS Optimization by Auto-Stopping"
-}
-
 variable "enable_governance" {
   type        = bool
   default     = false
@@ -72,22 +66,28 @@ variable "enable_cmk_ebs" {
   description = "Enable CMK KMS permissions for EBS"
 }
 
-variable "enable_autostopping_elb" {
-  type        = bool
-  default     = false
-  description = "Enable AutoStopping permissions for ELB"
+variable "autostopping_loadbalancers" {
+  type        = list(string)
+  default     = []
+  description = "Load balancers to be used with autostopping"
+  validation {
+    condition = alltrue([
+      for i in var.autostopping_loadbalancers : contains(["alb", "proxy"], i)
+    ])
+    error_message = "Allowed LB types are alb or proxy"
+  }
 }
 
-variable "enable_autostopping_ec2" {
-  type        = bool
-  default     = false
-  description = "Enable AutoStopping permissions for EC2"
-}
-
-variable "enable_autostopping_asg_ecs_rds" {
-  type        = bool
-  default     = false
-  description = "Enable AutoStopping permissions for ASG, ECS and RDS"
+variable "autostopping_resources" {
+  type        = list(string)
+  default     = []
+  description = "Resources to allow autostopping for"
+  validation {
+    condition = alltrue([
+      for i in var.autostopping_resources : contains(["ec2", "ec2-spot", "asg", "rds", "ecs"], i)
+    ])
+    error_message = "Allowed resource types are ec2, ec2-spot, asg, rds, or ecs"
+  }
 }
 
 variable "governance_policy_arns" {
