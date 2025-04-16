@@ -68,7 +68,7 @@ variable "enable_cmk_ebs" {
 
 variable "autostopping_loadbalancers" {
   type        = list(string)
-  default     = ["alb", "proxy"]
+  default     = []
   description = "Load balancers to be used with autostopping"
   validation {
     condition = alltrue([
@@ -80,7 +80,7 @@ variable "autostopping_loadbalancers" {
 
 variable "autostopping_resources" {
   type        = list(string)
-  default     = ["ec2", "ec2-spot", "asg", "rds", "ecs"]
+  default     = []
   description = "Resources to allow autostopping for"
   validation {
     condition = alltrue([
