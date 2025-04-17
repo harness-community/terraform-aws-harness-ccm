@@ -59,10 +59,10 @@ If your Harness account is located in our EU cluster, you will need to pass the 
 When creating roles in member accounts, for non billing access, just set the specific features you want to enable:
 
 - enable_events: gather inventory for dashboards and ec2/ecs recommendation data (read only)
-- enable_optimization: enables access required for autostopping (permissive)
-  - for fine-grain access, see section below
+- autostopping_loadbalancers: enables access required for leveraging ALB and/or Proxy autostopping
+- autostopping_resources: enables access required for autostopping based on target resource types
 - enable_governance: grant view-only access to be able to run governance in dry run and create custom recommendations (read only)
-- governance_policy_arn: to use governance to make changes, give custom policies that give the access requred (write)
+- governance_policy_arn: to use governance to make changes, give custom policies that give the access requred (based on the actions you want to take) (write)
 
 ```terraform
 terraform {
@@ -93,17 +93,11 @@ module "ccm-member" {
   enable_governance       = true
 
   # enable write access for governance enforcements
-  governance_policy_arn = [
+  governance_policy_arns = [
     "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
   ]
 }
 ```
-
-#### Fine-Grain Permissions
-
-Optionally we have included fine-grain policies for autostopping which list out specific IAM actions needed based on your target resource type.
-
-You can set these with `enable_autostopping_elb`, `enable_autostopping_ec2`, and `enable_autostopping_asg_rds_lambda`
 
 #### CMK EBS Volumes
 
