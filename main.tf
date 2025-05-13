@@ -186,11 +186,9 @@ data "aws_iam_policy_document" "harness_commitment" {
       var.enable_commitment_write ? [
         "ec2:PurchaseReservedInstancesOffering",
         "ec2:GetReservedInstancesExchangeQuote",
-        "ec2:DescribeInstanceTypeOfferings",
         "ec2:AcceptReservedInstancesExchangeQuote",
         "ec2:DescribeReservedInstancesModifications",
         "ec2:ModifyReservedInstances",
-        "ce:GetCostAndUsage",
         "savingsplans:DescribeSavingsPlansOfferings",
         "savingsplans:CreateSavingsPlan",
         "rds:PurchaseReservedDBInstancesOffering"
