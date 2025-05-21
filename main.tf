@@ -89,18 +89,30 @@ resource "aws_iam_role_policy_attachment" "harness_ce_eventsmonitoring" {
 
 data "aws_iam_policy_document" "harness_billingmonitoring" {
   statement {
-    sid = "readBillingBucket"
+    sid = "getBillingBucket"
 
     effect = "Allow"
 
     actions = [
       "s3:GetBucketLocation",
-      "s3:ListBucket",
-      "s3:GetObject"
+      "s3:ListBucket"
     ]
 
     resources = [
       var.s3_bucket_arn,
+    ]
+  }
+
+statement {
+    sid = "readBillingObjects"
+
+    effect = "Allow"
+
+    actions = [
+      "s3:GetObject"
+    ]
+
+    resources = [
       "${var.s3_bucket_arn}/*"
     ]
   }
@@ -117,7 +129,7 @@ data "aws_iam_policy_document" "harness_billingmonitoring" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.s3_bucket_name}*",
+      "arn:aws:s3:::${var.s3_bucket_name}",
       "arn:aws:s3:::${var.s3_bucket_name}/*"
     ]
   }
