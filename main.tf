@@ -181,6 +181,7 @@ data "aws_iam_policy_document" "harness_commitment" {
         "organizations:DescribeOrganization",
         "ce:GetCostAndUsage",
         "rds:DescribeReservedDBInstancesOfferings",
+        "rds:DescribeReservedDBInstances",
         "pricing:GetProducts"
       ] : [],
       var.enable_commitment_write ? [
